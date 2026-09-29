@@ -3,6 +3,7 @@
 import sqlite3
 from functools import cache
 
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.store.sqlite import SqliteStore
@@ -29,3 +30,8 @@ def store() -> SqliteStore:
     saver = SqliteStore(conn)
     saver.setup()
     return saver
+
+
+def in_memory() -> InMemorySaver:
+    """In-memory checkpointer for notebooks and evals, with the same safe types."""
+    return InMemorySaver(serde=JsonPlusSerializer(allowed_msgpack_modules=SAFE_TYPES))

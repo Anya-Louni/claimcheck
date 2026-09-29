@@ -28,10 +28,10 @@ os.environ["CLAIMCHECK_REPLAY_DIR"] = str(EVALS / "recordings")
 os.environ["CLAIMCHECK_MODELS_DEV_SNAPSHOT"] = str(EVALS / "fixtures" / "models_dev_api.json")
 shutil.copytree(EVALS / "recordings" / "evidence", DATA / "evidence")
 
-from langgraph.checkpoint.memory import InMemorySaver  # noqa: E402
 from langgraph.store.memory import InMemoryStore  # noqa: E402
 from langgraph.types import Command  # noqa: E402
 
+from claimcheck import persistence  # noqa: E402
 from claimcheck.agent import build_agent  # noqa: E402
 from claimcheck.config import settings  # noqa: E402
 from claimcheck.streaming import STREAM_MODES, to_events  # noqa: E402
@@ -61,7 +61,7 @@ def run_case(case: dict[str, Any]) -> dict[str, Any]:
     """Run every turn of a case, approving any pending action, and collect the trace."""
     fixture = case.get("search_fixture", "search_empty.json")
     os.environ["CLAIMCHECK_SEARCH_FIXTURE"] = str(EVALS / "fixtures" / fixture)
-    agent = build_agent(checkpointer=InMemorySaver(), store=InMemoryStore())
+    agent = build_agent(checkpointer=persistence.in_memory(), store=InMemoryStore())
     config = {"configurable": {"thread_id": case["id"]}, "tags": ["claimcheck-eval", case["id"]]}
     turns: list[list[dict[str, Any]]] = []
     report, errors, corrections, model_calls = None, [], [], 0
