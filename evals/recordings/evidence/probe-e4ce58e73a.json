@@ -1,0 +1,21 @@
+{
+  "id": "probe-e4ce58e73a",
+  "kind": "probe",
+  "created_at": "2026-09-29T11:15:42+00:00",
+  "capability": "tool_calling",
+  "model": "gemini-3.8-flash",
+  "path": "provider_sdk",
+  "trial": 1,
+  "request": {
+    "capability": "tool_calling",
+    "path": "google-genai generate_content"
+  },
+  "response": {
+    "text": "",
+    "tool_calls": [],
+    "parsed": null,
+    "error": "ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+  },
+  "passed": null,
+  "ms": 19188
+}

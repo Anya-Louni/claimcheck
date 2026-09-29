@@ -1,0 +1,24 @@
+{
+  "id": "probe-f8bf50490a",
+  "kind": "probe",
+  "created_at": "2026-09-29T11:26:43+00:00",
+  "capability": "structured_output",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "trial": 3,
+  "request": {
+    "prompt": "Extract the book from this sentence: 'Dune was written by Frank Herbert and published in 1965.'"
+  },
+  "response": {
+    "text": "{\n  \"title\": \"Dune\",\n  \"author\": \"Frank Herbert\",\n  \"year\": 1965\n}",
+    "tool_calls": [],
+    "parsed": {
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "year": 1965
+    },
+    "error": null
+  },
+  "passed": true,
+  "ms": 3514
+}

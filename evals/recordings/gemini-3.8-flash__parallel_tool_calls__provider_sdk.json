@@ -1,0 +1,23 @@
+{
+  "capability": "parallel_tool_calls",
+  "model": "gemini-3.8-flash",
+  "path": "provider_sdk",
+  "outcome": "pass",
+  "passes": 2,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}, {'name': 'get_weather', 'args': {'city': 'Tokyo'}}]",
+      "evidence_id": "probe-22d0561b3c",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}, {'name': 'get_weather', 'args': {'city': 'Tokyo'}}]",
+      "evidence_id": "probe-292b62a91e",
+      "error": null
+    }
+  ]
+}

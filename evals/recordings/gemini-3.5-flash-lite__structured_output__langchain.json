@@ -1,0 +1,29 @@
+{
+  "capability": "structured_output",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "{\n  \"title\": \"Dune\",\n  \"author\": \"Frank Herbert\",\n  \"year\": 1965\n}",
+      "evidence_id": "probe-449f03c20f",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "{\n  \"title\": \"Dune\",\n  \"author\": \"Frank Herbert\",\n  \"year\": 1965\n}",
+      "evidence_id": "probe-0d54cffd90",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "{\n  \"title\": \"Dune\",\n  \"author\": \"Frank Herbert\",\n  \"year\": 1965\n}",
+      "evidence_id": "probe-f8bf50490a",
+      "error": null
+    }
+  ]
+}

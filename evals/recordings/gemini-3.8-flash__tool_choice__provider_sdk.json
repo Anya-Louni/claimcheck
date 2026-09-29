@@ -1,0 +1,23 @@
+{
+  "capability": "tool_choice",
+  "model": "gemini-3.8-flash",
+  "path": "provider_sdk",
+  "outcome": "inconclusive",
+  "passes": 0,
+  "fails": 0,
+  "errors": 2,
+  "trials": [
+    {
+      "passed": null,
+      "observed": "ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "evidence_id": "probe-8ec8058949",
+      "error": "ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+    },
+    {
+      "passed": null,
+      "observed": "ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "evidence_id": "probe-608bb838be",
+      "error": "ServerError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+    }
+  ]
+}

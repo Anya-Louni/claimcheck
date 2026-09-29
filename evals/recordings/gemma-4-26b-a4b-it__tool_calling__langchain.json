@@ -1,0 +1,29 @@
+{
+  "capability": "tool_calling",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}]",
+      "evidence_id": "probe-51687a98f2",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}]",
+      "evidence_id": "probe-b6433e7144",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}]",
+      "evidence_id": "probe-b40b864685",
+      "error": null
+    }
+  ]
+}

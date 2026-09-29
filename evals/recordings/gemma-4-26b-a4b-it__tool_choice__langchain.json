@@ -1,0 +1,29 @@
+{
+  "capability": "tool_choice",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "[{'name': 'add_numbers', 'args': {'b': 1, 'a': 1}}]",
+      "evidence_id": "probe-7b63fc2a19",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'add_numbers', 'args': {'a': 1, 'b': 1}}]",
+      "evidence_id": "probe-d5626e7906",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'add_numbers', 'args': {'a': 1, 'b': 1}}]",
+      "evidence_id": "probe-f7a40d6ecc",
+      "error": null
+    }
+  ]
+}

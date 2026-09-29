@@ -1,0 +1,26 @@
+{
+  "id": "probe-339adf4b0e",
+  "kind": "probe",
+  "created_at": "2026-09-29T11:33:21+00:00",
+  "capability": "image_inputs",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "trial": 3,
+  "request": {
+    "prompt": "The image shows one word, one four digit number, and one filled circle. Reply on one line as: WORD NUMBER COLOR",
+    "image_evidence_id": "image-19e92ce62b",
+    "expected": {
+      "word": "ORBIT",
+      "number": "2500",
+      "color": "blue"
+    }
+  },
+  "response": {
+    "text": "ORBIT 2500 BLUE",
+    "tool_calls": [],
+    "parsed": null,
+    "error": null
+  },
+  "passed": true,
+  "ms": 11936
+}

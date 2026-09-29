@@ -1,0 +1,29 @@
+{
+  "capability": "audio_inputs",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "outcome": "fail",
+  "passes": 0,
+  "fails": 3,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": false,
+      "observed": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}",
+      "evidence_id": "probe-53bf1918a6",
+      "error": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}"
+    },
+    {
+      "passed": false,
+      "observed": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}",
+      "evidence_id": "probe-601a8a089c",
+      "error": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}"
+    },
+    {
+      "passed": false,
+      "observed": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}",
+      "evidence_id": "probe-0a86fd74da",
+      "error": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}"
+    }
+  ]
+}

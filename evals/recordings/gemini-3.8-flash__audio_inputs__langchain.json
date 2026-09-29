@@ -1,0 +1,23 @@
+{
+  "capability": "audio_inputs",
+  "model": "gemini-3.8-flash",
+  "path": "langchain",
+  "outcome": "inconclusive",
+  "passes": 1,
+  "fails": 0,
+  "errors": 1,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "39147",
+      "evidence_id": "probe-a38424f932",
+      "error": null
+    },
+    {
+      "passed": null,
+      "observed": "GoogleRateLimitError: Error calling model 'gemini-3.8-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/do",
+      "evidence_id": "probe-cd57de65ab",
+      "error": "GoogleRateLimitError: Error calling model 'gemini-3.8-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash\\nPlease retry in 6.345542474s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "capability": "audio_inputs",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "39147",
+      "evidence_id": "probe-2a8c3c9b18",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "61390",
+      "evidence_id": "probe-5f1a040fca",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "80526",
+      "evidence_id": "probe-1d43a9406f",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "capability": "image_inputs",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "TUNDRA 7890 BLUE",
+      "evidence_id": "probe-5d498d2383",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "CANYON 2033 RED",
+      "evidence_id": "probe-b99f54e00a",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "ORBIT 2500 BLUE",
+      "evidence_id": "probe-339adf4b0e",
+      "error": null
+    }
+  ]
+}

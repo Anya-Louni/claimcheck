@@ -1,0 +1,29 @@
+{
+  "capability": "structured_output",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "{\"title\": \"Dune\", \"author\": \"Frank Herbert\", \"year\": 1965}",
+      "evidence_id": "probe-ff6c412c02",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "{\"title\": \"Dune\", \"author\": \"Frank Herbert\", \"year\": 1965}",
+      "evidence_id": "probe-a1f0a1f204",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "{\"title\": \"Dune\", \"author\": \"Frank Herbert\", \"year\": 1965}",
+      "evidence_id": "probe-3a20682de7",
+      "error": null
+    }
+  ]
+}

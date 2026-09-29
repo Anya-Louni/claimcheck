@@ -1,0 +1,29 @@
+{
+  "capability": "parallel_tool_calls",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}, {'name': 'get_weather', 'args': {'city': 'Tokyo'}}]",
+      "evidence_id": "probe-1fc8a76003",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}, {'name': 'get_weather', 'args': {'city': 'Tokyo'}}]",
+      "evidence_id": "probe-af84113596",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}, {'name': 'get_weather', 'args': {'city': 'Tokyo'}}]",
+      "evidence_id": "probe-9bec704255",
+      "error": null
+    }
+  ]
+}

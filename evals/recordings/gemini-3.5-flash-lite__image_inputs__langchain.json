@@ -1,0 +1,29 @@
+{
+  "capability": "image_inputs",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "TUNDRA 7890 BLUE",
+      "evidence_id": "probe-a70b27e99d",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "CANYON 2033 red",
+      "evidence_id": "probe-bd18e73dbe",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "ORBIT 2500 blue",
+      "evidence_id": "probe-042f0f19ea",
+      "error": null
+    }
+  ]
+}

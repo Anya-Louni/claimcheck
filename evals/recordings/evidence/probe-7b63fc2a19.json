@@ -1,0 +1,28 @@
+{
+  "id": "probe-7b63fc2a19",
+  "kind": "probe",
+  "created_at": "2026-09-29T11:31:57+00:00",
+  "capability": "tool_choice",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "trial": 1,
+  "request": {
+    "prompt": "Tell me one short fact about owls."
+  },
+  "response": {
+    "text": "",
+    "tool_calls": [
+      {
+        "name": "add_numbers",
+        "args": {
+          "b": 1,
+          "a": 1
+        }
+      }
+    ],
+    "parsed": null,
+    "error": null
+  },
+  "passed": true,
+  "ms": 1514
+}

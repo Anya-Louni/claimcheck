@@ -1,0 +1,26 @@
+{
+  "id": "probe-e1851f5268",
+  "kind": "probe",
+  "created_at": "2026-09-29T11:16:43+00:00",
+  "capability": "image_inputs",
+  "model": "gemini-3.8-flash",
+  "path": "langchain",
+  "trial": 1,
+  "request": {
+    "prompt": "The image shows one word, one four digit number, and one filled circle. Reply on one line as: WORD NUMBER COLOR",
+    "image_evidence_id": "image-673450c744",
+    "expected": {
+      "word": "TUNDRA",
+      "number": "7890",
+      "color": "blue"
+    }
+  },
+  "response": {
+    "text": "",
+    "tool_calls": [],
+    "parsed": null,
+    "error": "GoogleRateLimitError: Error calling model 'gemini-3.8-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash\\nPlease retry in 16.589690208s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis"
+  },
+  "passed": null,
+  "ms": 391
+}

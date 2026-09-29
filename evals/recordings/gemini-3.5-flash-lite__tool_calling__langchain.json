@@ -1,0 +1,29 @@
+{
+  "capability": "tool_calling",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}]",
+      "evidence_id": "probe-e5c444efe8",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}]",
+      "evidence_id": "probe-ba77d10276",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}]",
+      "evidence_id": "probe-683f270db1",
+      "error": null
+    }
+  ]
+}

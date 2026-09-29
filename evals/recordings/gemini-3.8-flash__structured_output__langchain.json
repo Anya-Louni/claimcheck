@@ -1,0 +1,23 @@
+{
+  "capability": "structured_output",
+  "model": "gemini-3.8-flash",
+  "path": "langchain",
+  "outcome": "inconclusive",
+  "passes": 0,
+  "fails": 0,
+  "errors": 2,
+  "trials": [
+    {
+      "passed": null,
+      "observed": "GoogleAPIError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "evidence_id": "probe-a89c3769fd",
+      "error": "GoogleAPIError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+    },
+    {
+      "passed": null,
+      "observed": "GoogleAPIError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "evidence_id": "probe-43a0cc9e7b",
+      "error": "GoogleAPIError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+    }
+  ]
+}

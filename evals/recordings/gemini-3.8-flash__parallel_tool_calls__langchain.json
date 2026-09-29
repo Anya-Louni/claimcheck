@@ -1,0 +1,23 @@
+{
+  "capability": "parallel_tool_calls",
+  "model": "gemini-3.8-flash",
+  "path": "langchain",
+  "outcome": "inconclusive",
+  "passes": 1,
+  "fails": 0,
+  "errors": 1,
+  "trials": [
+    {
+      "passed": null,
+      "observed": "GoogleAPIError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "evidence_id": "probe-95ba187dea",
+      "error": "GoogleAPIError: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}"
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'get_weather', 'args': {'city': 'Paris'}}, {'name': 'get_weather', 'args': {'city': 'Tokyo'}}]",
+      "evidence_id": "probe-be02991f68",
+      "error": null
+    }
+  ]
+}

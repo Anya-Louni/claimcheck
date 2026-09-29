@@ -1,0 +1,29 @@
+{
+  "capability": "tool_choice",
+  "model": "gemini-3.5-flash-lite",
+  "path": "langchain",
+  "outcome": "pass",
+  "passes": 3,
+  "fails": 0,
+  "errors": 0,
+  "trials": [
+    {
+      "passed": true,
+      "observed": "[{'name': 'add_numbers', 'args': {'b': 5, 'a': 10}}]",
+      "evidence_id": "probe-66308855f1",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'add_numbers', 'args': {'a': 1, 'b': 2}}]",
+      "evidence_id": "probe-c7fd213efa",
+      "error": null
+    },
+    {
+      "passed": true,
+      "observed": "[{'name': 'add_numbers', 'args': {'b': 2, 'a': 1}}]",
+      "evidence_id": "probe-3d21f5a0b9",
+      "error": null
+    }
+  ]
+}

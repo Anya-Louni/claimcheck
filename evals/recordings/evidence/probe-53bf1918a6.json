@@ -1,0 +1,23 @@
+{
+  "id": "probe-53bf1918a6",
+  "kind": "probe",
+  "created_at": "2026-09-29T11:34:22+00:00",
+  "capability": "audio_inputs",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "trial": 1,
+  "request": {
+    "prompt": "Transcribe the digits spoken in this audio. Reply with numerals only, no spaces.",
+    "audio_fixture": "fixtures/audio/digits_39147.wav",
+    "sha256": "b5166f6e8098ecf6",
+    "expected": "39147"
+  },
+  "response": {
+    "text": "",
+    "tool_calls": [],
+    "parsed": null,
+    "error": "GoogleInvalidRequestError: Error calling model 'gemma-4-26b-a4b-it' (INVALID_ARGUMENT): 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Audio input modality is not enabled for this model', 'status': 'INVALID_ARGUMENT'}}"
+  },
+  "passed": false,
+  "ms": 6139
+}
