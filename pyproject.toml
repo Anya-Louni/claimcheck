@@ -56,3 +56,6 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = true
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.File", "fastapi.Form"]
