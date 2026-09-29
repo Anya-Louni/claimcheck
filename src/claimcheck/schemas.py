@@ -6,12 +6,22 @@ from pydantic import BaseModel, Field
 
 Verdict = Literal["confirmed", "contradicted", "inconclusive", "unclaimed", "not_probed"]
 Layer = Literal["model", "integration", "data", "none"]
+FieldName = Literal[
+    "tool_calling",
+    "tool_choice",
+    "parallel_tool_calls",
+    "structured_output",
+    "image_inputs",
+    "audio_inputs",
+    "max_input_tokens",
+    "max_output_tokens",
+]
 
 
 class ClaimVerdict(BaseModel):
     """One claimed capability compared with what was observed."""
 
-    field: str = Field(description="Profile key, for example tool_calling or image_inputs.")
+    field: FieldName = Field(description="The profile key this row is about.")
     claimed_langchain: str | None = Field(
         description="Value in the LangChain profile as text, or null if missing."
     )

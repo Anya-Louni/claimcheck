@@ -12,14 +12,15 @@ Every change is listed in unverified so the reader can see it.
 """
 
 import json
-from typing import Any
+from typing import Any, get_args
 
 from langchain.agents.middleware import AgentMiddleware, AgentState
+from langchain_core.messages import ToolMessage
 from langgraph.runtime import Runtime
 
 from claimcheck import claims, evidence
 from claimcheck.probes.base import majority
-from claimcheck.schemas import ClaimVerdict, ProfileReport
+from claimcheck.schemas import ClaimVerdict, FieldName, ProfileReport
 
 STRONG = {"confirmed", "contradicted"}
 
@@ -106,6 +107,61 @@ def _check_claim(
     return claim, problems
 
 
+def run_evidence(messages: list[Any]) -> dict[str, list[str]]:
+    """Map each field to the evidence ids the run's own tool results produced. Pure."""
+    found: dict[str, list[str]] = {}
+    for message in messages:
+        if not isinstance(message, ToolMessage):
+            continue
+        try:
+            data = json.loads(message.text)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        if data.get("path") == "langchain" and data.get("capability") and data.get("evidence_ids"):
+            found[data["capability"]] = [e for e in data["evidence_ids"] if e]
+        if "max_input_tokens" in data and data.get("evidence_id"):
+            found["max_input_tokens"] = found["max_output_tokens"] = [data["evidence_id"]]
+    return found
+
+
+def fill_missing(
+    report: ProfileReport, found: dict[str, list[str]], lookup: Any = evidence.load
+) -> tuple[ProfileReport, list[str]]:
+    """Add a row for every field the run measured but the report left out. Pure given lookup."""
+    present = {c.field for c in report.claims}
+    added: list[ClaimVerdict] = []
+    notes: list[str] = []
+    for field in get_args(FieldName):
+        ids = found.get(field)
+        if field in present or not ids:
+            continue
+        records = [r for r in map(lookup, ids) if r]
+        value = observed_value(field, records)
+        if isinstance(value, int) and not isinstance(value, bool):
+            observed = f"{value} tokens"
+        else:
+            passes = sum(r.get("passed") is True for r in records)
+            observed = f"{passes}/{len(records)} pass"
+        added.append(
+            ClaimVerdict(
+                field=field,
+                claimed_langchain=None,
+                claimed_models_dev=None,
+                observed=observed,
+                verdict="inconclusive",
+                layer="none",
+                evidence_ids=ids,
+                note="Added by the evidence check: the report left this field out.",
+            )
+        )
+        notes.append(f"{field}: missing from the report, added from this run's evidence")
+    if not added:
+        return report, notes
+    return report.model_copy(update={"claims": [*report.claims, *added]}), notes
+
+
 def check_report(
     report: ProfileReport,
     claim_rows: list[dict[str, Any]] | None = None,
@@ -138,10 +194,13 @@ class EvidenceCheckMiddleware(AgentMiddleware):
             data = claims.get_claims_data(report.provider, report.model)
         except Exception:  # an unknown model or provider leaves nothing to compare
             data = {}
+        report, added = fill_missing(report, run_evidence(state["messages"]))
         fixed, problems = check_report(report, data.get("claims"))
+        problems = added + problems
+        fixed = fixed.model_copy(update={"unverified": added + fixed.unverified})
         if data.get("integration"):
             fixed = fixed.model_copy(update={"integration_version": data["integration"]})
-        from claimcheck.budget import _emit
+        from claimcheck.budget import emit
 
-        _emit({"type": "evidence_check", "problems": problems, "claims": len(fixed.claims)})
+        emit({"type": "evidence_check", "problems": problems, "claims": len(fixed.claims)})
         return {"structured_response": fixed}

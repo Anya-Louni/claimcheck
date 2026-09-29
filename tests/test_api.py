@@ -80,3 +80,24 @@ def test_rate_limit_per_ip(fake_agent: None, monkeypatch: pytest.MonkeyPatch) ->
     assert first.status_code == 200
     second = client.post("/runs", data={"thread_id": "rl2", "message": "b"})
     assert second.status_code == 429
+
+
+def test_audio_fixture_served_and_paths_guarded() -> None:
+    ok = client.get("/fixtures/audio/digits_39147.wav")
+    assert ok.status_code == 200 and ok.headers["content-type"] == "audio/wav"
+    assert client.get("/fixtures/audio/..%2F..%2F.env").status_code == 404
+    assert client.get("/fixtures/audio/other.wav").status_code == 404
+
+
+def test_client_ip_uses_proxy_header_only_when_trusted(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    scope = {
+        "type": "http",
+        "headers": [(b"x-forwarded-for", b"1.1.1.1, 2.2.2.2")],
+        "client": ("10.0.0.1", 1234),
+    }
+    request = Request(scope)
+    assert app_module.client_ip(request) == "10.0.0.1"
+    monkeypatch.setenv("TRUST_PROXY", "1")
+    assert app_module.client_ip(request) == "2.2.2.2"

@@ -7,6 +7,7 @@ Usage:
 
 import argparse
 import json
+import time
 from typing import Any
 
 from langgraph.types import Command
@@ -41,6 +42,7 @@ def main() -> None:
     parser.add_argument("message", nargs="?")
     parser.add_argument("--thread", required=True)
     parser.add_argument("--resume", choices=["approve", "reject"])
+    parser.add_argument("--record", help="append events to this JSONL file for demo replay")
     args = parser.parse_args()
 
     agent = build_agent(checkpointer=persistence.checkpointer(), store=persistence.store())
@@ -51,8 +53,19 @@ def main() -> None:
         payload: Any = Command(resume={"decisions": [{"type": args.resume}] * count})
     else:
         payload = {"messages": [{"role": "user", "content": args.message}]}
+    if args.resume and args.record:
+        _record(args.record, {"type": "decision", "decision": args.resume})
+    started = time.monotonic()
     for event in to_events(agent.stream(payload, config, stream_mode=STREAM_MODES)):
         _print(event)
+        if args.record and event["type"] != "token":
+            event["at_ms"] = int((time.monotonic() - started) * 1000)
+            _record(args.record, event)
+
+
+def _record(path: str, event: dict[str, Any]) -> None:
+    with open(path, "a", encoding="utf-8") as out:
+        out.write(json.dumps(event, default=str) + "\n")
 
 
 if __name__ == "__main__":

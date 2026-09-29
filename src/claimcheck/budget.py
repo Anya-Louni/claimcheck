@@ -106,6 +106,9 @@ class BudgetMiddleware(AgentMiddleware[BudgetState]):
     def before_model(self, state: BudgetState, runtime: Runtime) -> dict[str, Any] | None:
         reason = self._limit_reason(state)
         if reason is None:
+            # A run resumed after an approval skips before_agent, so start its clock here.
+            if "run_started" not in state:
+                return {"run_started": time.monotonic(), "run_tokens": 0}
             return None
         text = f"Stopped: {reason}. {summarize_progress(state['messages'])}"
         return {"jump_to": "end", "messages": [AIMessage(content=text)]}
@@ -115,12 +118,12 @@ class BudgetMiddleware(AgentMiddleware[BudgetState]):
         usage = getattr(last, "usage_metadata", None) or {}
         tokens = state.get("run_tokens", 0) + usage.get("total_tokens", 0)
         daily = self.daily_cap.charge(1, strict=False)
-        _emit(
+        emit(
             {
                 "type": "budget",
                 "tokens": tokens,
                 "max_tokens": self.max_tokens,
-                "seconds": round(time.monotonic() - state.get("run_started", 0.0), 1),
+                "seconds": round(time.monotonic() - state.get("run_started", time.monotonic()), 1),
                 "max_seconds": self.max_seconds,
                 "daily_calls": daily,
                 "daily_limit": self.daily_cap.limit,
@@ -129,7 +132,7 @@ class BudgetMiddleware(AgentMiddleware[BudgetState]):
         return {"run_tokens": tokens}
 
 
-def _emit(event: dict[str, Any]) -> None:
+def emit(event: dict[str, Any]) -> None:
     """Send a custom stream event when running inside a graph, else do nothing."""
     try:
         get_stream_writer()(event)

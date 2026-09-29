@@ -139,3 +139,47 @@ def test_missing_langchain_value_is_a_data_layer_problem() -> None:
     fixed, _ = check_report(_report(claimed_langchain=None), rows, RECORDS.get)
     assert fixed.claims[0].layer == "data"
     assert "stale" in fixed.claims[0].note
+
+
+def test_missing_fields_are_added_from_run_evidence() -> None:
+    import json as _json
+
+    from langchain_core.messages import ToolMessage
+
+    from claimcheck.evidence_check import fill_missing, run_evidence
+
+    messages = [
+        ToolMessage(
+            _json.dumps(
+                {
+                    "capability": "audio_inputs",
+                    "path": "langchain",
+                    "evidence_ids": ["fail-1", "fail-2"],
+                }
+            ),
+            tool_call_id="1",
+        ),
+        ToolMessage(
+            _json.dumps({"max_input_tokens": 1000, "evidence_id": "meta"}), tool_call_id="2"
+        ),
+    ]
+    found = run_evidence(messages)
+    assert found == {
+        "audio_inputs": ["fail-1", "fail-2"],
+        "max_input_tokens": ["meta"],
+        "max_output_tokens": ["meta"],
+    }
+    report = _report(field="tool_calling", evidence_ids=["pass-1"])
+    filled, notes = fill_missing(report, found, RECORDS.get)
+    fields = [c.field for c in filled.claims]
+    assert fields == ["tool_calling", "audio_inputs", "max_input_tokens", "max_output_tokens"]
+    rows = [
+        {"field": "audio_inputs", "langchain": False, "models_dev": False},
+        {"field": "max_input_tokens", "langchain": 1000, "models_dev": 1000},
+    ]
+    checked, _ = check_report(filled, rows, RECORDS.get)
+    by_field = {c.field: c for c in checked.claims}
+    assert by_field["audio_inputs"].verdict == "confirmed"
+    assert by_field["max_input_tokens"].verdict == "confirmed"
+    assert by_field["max_input_tokens"].observed == "1000 tokens"
+    assert len(notes) == 3

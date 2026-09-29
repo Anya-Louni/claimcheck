@@ -4,6 +4,7 @@ Keys stay on the server. The browser only ever sees events, reports and evidence
 """
 
 import json
+import os
 import time
 from collections import defaultdict, deque
 from collections.abc import Iterator
@@ -12,7 +13,7 @@ from typing import Any
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from langgraph.types import Command
 from pydantic import BaseModel
 
@@ -39,9 +40,17 @@ _agent = build_agent(checkpointer=persistence.checkpointer(), store=persistence.
 _hits: dict[str, deque[float]] = defaultdict(deque)
 
 
+def client_ip(request: Request) -> str:
+    """The caller's address. Behind a trusted proxy, the address the proxy appended last."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if os.getenv("TRUST_PROXY") == "1" and forwarded:
+        return forwarded.split(",")[-1].strip()
+    return request.client.host if request.client else "unknown"
+
+
 def _rate_limit(request: Request) -> None:
     """Allow RUNS_PER_HOUR agent runs per client IP."""
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     window = _hits[ip]
     now = time.time()
     while window and now - window[0] > 3600:
@@ -149,6 +158,15 @@ def get_evidence(evidence_id: str) -> dict[str, Any]:
     if record is None:
         raise HTTPException(404, "unknown evidence id")
     return record
+
+
+@app.get("/fixtures/audio/{name}")
+def get_audio_fixture(name: str) -> FileResponse:
+    """Serve one of the synthesized digit clips the audio probe uses."""
+    path = ROOT / "fixtures" / "audio" / name
+    if not name.startswith("digits_") or not name.endswith(".wav") or not path.is_file():
+        raise HTTPException(404, "unknown clip")
+    return FileResponse(path, media_type="audio/wav")
 
 
 @app.get("/findings/{provider}/{model}")

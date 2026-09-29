@@ -58,3 +58,16 @@ def test_daily_cap_blocks_before_model(tmp_path: Any) -> None:
     agent = create_agent(fake_model(AIMessage("hi")), tools=[], middleware=[middleware])
     result = agent.invoke({"messages": [{"role": "user", "content": "go"}]})
     assert "daily cap" in result["messages"][-1].text
+
+
+def test_resumed_run_starts_its_own_clock(tmp_path: Any) -> None:
+    # A resumed run skips before_agent; before_model must start the clock itself.
+    middleware = BudgetMiddleware(
+        max_tokens=1000, max_seconds=60, daily_cap=DailyCap(tmp_path / "u.json", 10)
+    )
+    update = middleware.before_model({"messages": []}, None)  # type: ignore[arg-type]
+    assert update is not None and update["run_tokens"] == 0 and update["run_started"] > 0
+    assert (
+        middleware.before_model({"messages": [], "run_started": update["run_started"]}, None)
+        is None
+    )  # type: ignore[arg-type]

@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
 from claimcheck import evidence
-from claimcheck.budget import DailyCap, DailyCapReached
+from claimcheck.budget import DailyCap, DailyCapReached, emit
 
 Path_ = Literal["langchain", "provider_sdk"]
 Outcome = Literal["pass", "fail", "inconclusive"]
@@ -164,6 +164,19 @@ def run_trials(
         )
         observed = obs.error or obs.text or str(obs.tool_calls or obs.parsed)
         results.append(Trial(passed, observed[:300], evidence_id, obs.error))
+        emit(
+            {
+                "type": "probe_trial",
+                "capability": capability,
+                "model": model,
+                "path": path,
+                "trial": index + 1,
+                "of": len(cases),
+                "passed": passed,
+                "evidence_id": evidence_id,
+                "error": obs.error,
+            }
+        )
     passes = sum(t.passed is True for t in results)
     fails = sum(t.passed is False for t in results)
     errors = sum(t.passed is None for t in results)

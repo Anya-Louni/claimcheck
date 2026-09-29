@@ -4,6 +4,7 @@ Event types: trace, token, interrupt, result, error. Every event is a plain dict
 with a "type" key so the API can send it as one Server-Sent Event.
 """
 
+import json
 import time
 from collections.abc import Iterable, Iterator
 from typing import Any
@@ -16,6 +17,16 @@ STREAM_MODES = ["updates", "messages", "custom"]
 def _summary(text: str, limit: int = 300) -> str:
     text = " ".join(text.split())
     return text if len(text) <= limit else text[:limit] + "..."
+
+
+def _data(text: str, limit: int = 20_000) -> Any:
+    """Parsed JSON tool output for the UI, when it is JSON and small enough."""
+    if len(text) > limit:
+        return None
+    try:
+        return json.loads(text)
+    except (json.JSONDecodeError, TypeError):
+        return None
 
 
 def _jsonable(value: Any) -> Any:
@@ -58,6 +69,7 @@ def _node_events(node: str, update: Any, ms: int) -> Iterator[dict[str, Any]]:
                 "id": message.tool_call_id,
                 "status": message.status,
                 "detail": _summary(message.text),
+                "data": _data(message.text),
                 "ms": ms,
             }
     if node != "model" and node != "tools" and not update.get("messages"):
