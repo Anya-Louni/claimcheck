@@ -101,3 +101,15 @@ def test_client_ip_uses_proxy_header_only_when_trusted(monkeypatch: pytest.Monke
     assert app_module.client_ip(request) == "10.0.0.1"
     monkeypatch.setenv("TRUST_PROXY", "1")
     assert app_module.client_ip(request) == "2.2.2.2"
+
+
+def test_client_ip_from_signed_proxy_header(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    def request(secret: bytes) -> Request:
+        headers = [(b"x-client-ip", b"9.9.9.9"), (b"x-proxy-secret", secret)]
+        return Request({"type": "http", "headers": headers, "client": ("10.0.0.1", 1)})
+
+    monkeypatch.setenv("PROXY_SECRET", "s3cret")
+    assert app_module.client_ip(request(b"s3cret")) == "9.9.9.9"
+    assert app_module.client_ip(request(b"wrong")) == "10.0.0.1"

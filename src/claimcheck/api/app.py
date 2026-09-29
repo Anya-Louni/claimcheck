@@ -3,6 +3,7 @@
 Keys stay on the server. The browser only ever sees events, reports and evidence.
 """
 
+import hmac
 import json
 import os
 import time
@@ -41,7 +42,17 @@ _hits: dict[str, deque[float]] = defaultdict(deque)
 
 
 def client_ip(request: Request) -> str:
-    """The caller's address. Behind a trusted proxy, the address the proxy appended last."""
+    """The caller's address.
+
+    The web app's proxy passes the visitor's address in X-Client-IP, signed with
+    a shared secret. Otherwise, behind a trusted proxy, use the address that
+    proxy appended last, and failing that the socket address.
+    """
+    secret = os.getenv("PROXY_SECRET")
+    if secret and hmac.compare_digest(request.headers.get("x-proxy-secret", ""), secret):
+        visitor = request.headers.get("x-client-ip", "").strip()
+        if visitor:
+            return visitor
     forwarded = request.headers.get("x-forwarded-for", "")
     if os.getenv("TRUST_PROXY") == "1" and forwarded:
         return forwarded.split(",")[-1].strip()

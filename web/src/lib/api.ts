@@ -2,7 +2,8 @@
 
 import type { Decision, StreamEvent } from "./types";
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+// Same-origin proxy (app/api/[...path]/route.ts) that holds the service token.
+export const API_URL = "/api";
 
 export class ApiError extends Error {
   constructor(
