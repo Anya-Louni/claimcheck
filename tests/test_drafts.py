@@ -40,3 +40,41 @@ def test_pr_description_cites_evidence() -> None:
         "gemini-test", [Change("audio_inputs", False, ["probe-a", "probe-b"])], "notes"
     )
     assert "probe-a, probe-b" in text and "gemini-test" in text
+
+
+def _probe(passed: bool, model: str = "m") -> dict:
+    return {
+        "kind": "probe",
+        "model": model,
+        "capability": "audio_inputs",
+        "path": "langchain",
+        "passed": passed,
+    }
+
+
+EVIDENCE = {
+    "f1": _probe(False),
+    "f2": _probe(False),
+    "p1": _probe(True),
+    "x": _probe(False, "other"),
+}
+
+
+def test_draft_needs_evidence_for_the_new_value() -> None:
+    from claimcheck.drafts import check_changes
+
+    backed = [Change("audio_inputs", False, ["f1", "f2"])]
+    assert check_changes(backed, "m", {"audio_inputs": True}, EVIDENCE.get) == []
+    wrong_value = [Change("audio_inputs", True, ["f1", "f2"])]
+    assert (
+        "evidence shows False"
+        in check_changes(wrong_value, "m", {"audio_inputs": False}, EVIDENCE.get)[0]
+    )
+    already = check_changes(backed, "m", {"audio_inputs": False}, EVIDENCE.get)
+    assert "already says" in already[0]
+    foreign = check_changes([Change("audio_inputs", False, ["x"])], "m", {}, EVIDENCE.get)
+    assert "does not settle" in foreign[0]
+    assert (
+        "not a models.dev field"
+        in check_changes([Change("tool_choice", True, [])], "m", {}, EVIDENCE.get)[0]
+    )

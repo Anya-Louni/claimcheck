@@ -1,11 +1,14 @@
 """Tools the agent can call. Docstrings are written for the model."""
 
 import json
+import os
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Literal
 
 from langchain.tools import ToolRuntime, tool
 from langchain_tavily import TavilySearch
+from langgraph.store.base import BaseStore
 from pydantic import BaseModel
 
 from claimcheck import claims, drafts, evidence, probes
@@ -13,6 +16,14 @@ from claimcheck.schemas import Verdict
 from claimcheck.untrusted import wrap
 
 CallPath = Literal["langchain", "provider_sdk"]
+
+
+class FieldChange(BaseModel):
+    """A corrected value for one field, with the evidence ids that show it."""
+
+    field: str
+    value: bool | int
+    evidence_ids: list[str]
 
 
 class FieldVerdict(BaseModel):
@@ -111,6 +122,15 @@ def check_provider_limits(provider: str, model: str) -> str:
     return _guard(probes.provider_limits, provider, model)
 
 
+def _search(query: str, domains: list[str]) -> list[dict[str, Any]]:
+    """Tavily search, or recorded results when CLAIMCHECK_SEARCH_FIXTURE is set."""
+    fixture = os.getenv("CLAIMCHECK_SEARCH_FIXTURE")
+    if fixture:
+        return json.loads(Path(fixture).read_text(encoding="utf-8"))
+    search = TavilySearch(max_results=4, include_domains=domains)
+    return search.invoke({"query": query}).get("results", [])
+
+
 @tool
 def search_provider_docs(query: str, provider: str) -> str:
     """Search the provider's official documentation only.
@@ -126,8 +146,7 @@ def search_provider_docs(query: str, provider: str) -> str:
         prov = claims.resolve_provider(provider)
     except claims.OutOfScope as exc:
         return _json({"error": "out_of_scope", "detail": str(exc)})
-    search = TavilySearch(max_results=4, include_domains=list(prov.doc_domains))
-    results = search.invoke({"query": query}).get("results", [])
+    results = _search(query, list(prov.doc_domains))
     out = []
     for item in results:
         evidence_id = evidence.save(
@@ -144,13 +163,19 @@ def search_provider_docs(query: str, provider: str) -> str:
     return _json(out)
 
 
+def _store(runtime: ToolRuntime) -> BaseStore:
+    if runtime.store is None:
+        raise RuntimeError("the agent was built without a store")
+    return runtime.store
+
+
 @tool
 def list_findings(provider: str, model: str, runtime: ToolRuntime) -> str:
     """List earlier saved investigations of this model, newest first.
 
     Call this near the start to show what changed since last time.
     """
-    items = runtime.store.search(("findings", provider, model), limit=10)
+    items = _store(runtime).search(("findings", provider, model), limit=10)
     items = sorted(items, key=lambda i: i.key, reverse=True)
     return _json([{"saved_at": i.key, **i.value} for i in items])
 
@@ -178,7 +203,7 @@ def save_finding(
         "integration_version": integration_version,
         "verdicts": {v.field: v.verdict for v in verdicts},
     }
-    runtime.store.put(("findings", provider, model), key, value)
+    _store(runtime).put(("findings", provider, model), key, value)
     return _json({"saved": True, "saved_at": key})
 
 
@@ -186,7 +211,7 @@ def save_finding(
 def draft_models_dev_change(
     provider: str,
     model: str,
-    changes: list[dict[str, Any]],
+    changes: list[FieldChange],
     layer_notes: str,
 ) -> str:
     """Draft a correction to models.dev as a diff and pull request text. Needs user approval.
@@ -198,17 +223,19 @@ def draft_models_dev_change(
     Args:
         provider: Provider name.
         model: Model id.
-        changes: List of {"field": ..., "value": ..., "evidence_ids": [...]}.
-            Editable fields: tool_calling, structured_output, image_inputs,
-            audio_inputs, max_output_tokens.
+        changes: One entry per wrong field. Editable fields: tool_calling,
+            structured_output, image_inputs, audio_inputs, max_output_tokens.
         layer_notes: Why the fix belongs in models.dev and not in LangChain.
     """
-    parsed = [
-        drafts.Change(c["field"], c["value"], list(c.get("evidence_ids", []))) for c in changes
-    ]
-    missing = [c.field for c in parsed if not c.evidence_ids]
-    if missing:
-        return _json({"error": "missing_evidence", "fields": missing})
+    parsed = [drafts.Change(c.field, c.value, c.evidence_ids) for c in changes]
+    try:
+        data = claims.get_claims_data(provider, model)
+    except claims.OutOfScope as exc:
+        return _json({"error": "out_of_scope", "detail": str(exc)})
+    current = {row["field"]: row["models_dev"] for row in data["claims"]}
+    problems = drafts.check_changes(parsed, model, current, evidence.load)
+    if not parsed or problems:
+        return _json({"error": "not_backed_by_evidence", "problems": problems or ["no changes"]})
     return _guard(drafts.draft_change, provider, model, parsed, layer_notes)
 
 

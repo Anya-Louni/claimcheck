@@ -139,7 +139,7 @@ def resume_run(thread_id: str, body: Resume) -> StreamingResponse:
     if not _agent.get_state(_config(thread_id)).interrupts:
         raise HTTPException(409, "nothing is waiting for approval on this thread")
     decisions = [d.model_dump(exclude_none=True) for d in body.decisions]
-    command = Command(resume={"decisions": decisions})
+    command: Command = Command(resume={"decisions": decisions})
     return _sse(to_events(_agent.stream(command, _config(thread_id), stream_mode=STREAM_MODES)))
 
 

@@ -4,6 +4,7 @@ The draft is only written to disk for review. Nothing is ever submitted.
 """
 
 import difflib
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -30,6 +31,35 @@ class Change:
     field: str
     value: Any
     evidence_ids: list[str]
+
+
+def check_changes(
+    changes: list[Change],
+    model: str,
+    models_dev_values: dict[str, Any],
+    lookup: Callable[[str], dict[str, Any] | None],
+) -> list[str]:
+    """Return reasons to refuse the draft. Empty means every change is backed. Pure.
+
+    A change is backed when its cited evidence is about this model, shows the
+    new value, and models.dev currently says something else.
+    """
+    from claimcheck.evidence_check import observed_value
+
+    problems = []
+    for change in changes:
+        if change.field not in EDITABLE:
+            problems.append(f"{change.field}: not a models.dev field this tool can edit")
+            continue
+        records = [r for r in map(lookup, change.evidence_ids) if r and r.get("model") == model]
+        observed = observed_value(change.field, records)
+        if observed is None:
+            problems.append(f"{change.field}: cited evidence does not settle the value")
+        elif observed != change.value:
+            problems.append(f"{change.field}: evidence shows {observed}, not {change.value}")
+        elif models_dev_values.get(change.field) == change.value:
+            problems.append(f"{change.field}: models.dev already says {change.value}")
+    return problems
 
 
 def apply_change(doc: tomlkit.TOMLDocument, change: Change) -> None:

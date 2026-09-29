@@ -9,8 +9,14 @@ from langchain.agents.middleware import (
 )
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models import BaseChatModel
+from langchain_core.rate_limiters import InMemoryRateLimiter
 
 from claimcheck.config import settings
+
+# Free-tier friendly pace for the agent's own calls: about 15 requests a minute.
+_agent_limiter = InMemoryRateLimiter(
+    requests_per_second=0.25, check_every_n_seconds=0.1, max_bucket_size=2
+)
 
 
 def make_model(model: str | None = None, **kwargs: Any) -> BaseChatModel:
@@ -20,6 +26,7 @@ def make_model(model: str | None = None, **kwargs: Any) -> BaseChatModel:
     and backoff and every attempt shows up in the trace.
     """
     kwargs.setdefault("max_retries", 0)
+    kwargs.setdefault("rate_limiter", _agent_limiter)
     return init_chat_model(model or settings.model, **kwargs)
 
 

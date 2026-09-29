@@ -96,17 +96,18 @@ def _sdk_cases(model_name: str, capability: str, trials: int) -> list[ProbeCase]
     }
     if capability in scores:
         call = partial(_limited, paths.sdk_call, client, model_name, capability)
-        request = {"capability": capability, "path": "google-genai generate_content"}
-        return [ProbeCase(request, call, scores[capability]) for _ in range(trials)]
+        info = {"capability": capability, "path": "google-genai generate_content"}
+        return [ProbeCase(info, call, scores[capability]) for _ in range(trials)]
+    cases: list[Any]
+    score: Any
+    request: Any
     if capability == "image_inputs":
-        cases: list[Any] = [tasks.make_image_case(seed) for seed in range(trials)]
-        score = tasks.score_image
-        request = _image_request
+        cases = [tasks.make_image_case(seed) for seed in range(trials)]
+        score, request = tasks.score_image, _image_request
     elif capability == "audio_inputs":
         clips = tasks.audio_cases()
         cases = [clips[i % len(clips)] for i in range(trials)]
-        score = tasks.score_audio
-        request = _audio_request
+        score, request = tasks.score_audio, _audio_request
     else:
         raise ValueError(f"unknown capability {capability}")
     return [
@@ -203,6 +204,11 @@ def provider_limits(provider: str, model: str) -> dict[str, Any]:
     sending oversized prompts.
     """
     resolve_provider(provider)
+    replay = _replay_file(model, "limits", "provider")
+    if replay is not None:
+        if not replay.exists():
+            raise FileNotFoundError(f"no recording of limits for {model}")
+        return {**json.loads(replay.read_text()), "live": False}
     daily_cap.charge(1)
     info = _genai_client().models.get(model=model)
     fields = {
@@ -217,4 +223,9 @@ def provider_limits(provider: str, model: str) -> dict[str, Any]:
             "response": {**fields, "name": info.name},
         },
     )
-    return {**fields, "evidence_id": evidence_id}
+    result = {**fields, "evidence_id": evidence_id}
+    record_dir = os.getenv("CLAIMCHECK_RECORD_DIR")
+    if record_dir:
+        out = Path(record_dir) / f"{model}__limits__provider.json"
+        out.write_text(json.dumps(result, indent=2))
+    return result

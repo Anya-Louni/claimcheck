@@ -7,6 +7,7 @@ max_output_tokens.
 """
 
 import json
+import os
 import time
 from dataclasses import dataclass
 from importlib.metadata import PackageNotFoundError, version
@@ -107,7 +108,13 @@ def merge_claims(langchain: dict[str, Any], models_dev: dict[str, Any]) -> list[
 
 
 def fetch_models_dev(path: Path = CACHE_PATH) -> dict[str, Any]:
-    """Return the models.dev catalog, cached on disk for a few hours."""
+    """Return the models.dev catalog, cached on disk for a few hours.
+
+    CLAIMCHECK_MODELS_DEV_SNAPSHOT pins a saved copy, so evals are repeatable.
+    """
+    snapshot = os.getenv("CLAIMCHECK_MODELS_DEV_SNAPSHOT")
+    if snapshot:
+        return json.loads(Path(snapshot).read_text(encoding="utf-8"))
     if path.exists() and time.time() - path.stat().st_mtime < CACHE_SECONDS:
         return json.loads(path.read_text(encoding="utf-8"))
     response = httpx.get(MODELS_DEV_URL, timeout=30, follow_redirects=True)

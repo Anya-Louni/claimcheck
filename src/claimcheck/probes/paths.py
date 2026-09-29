@@ -4,7 +4,7 @@ Each function sends one request and returns an Observation. Scoring happens
 elsewhere, so both paths are judged by exactly the same rules.
 """
 
-from typing import Any
+from typing import Any, cast
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage
@@ -49,7 +49,7 @@ def lc_structured(model: BaseChatModel) -> Observation:
     runnable = model.with_structured_output(
         tasks.BOOK_SCHEMA, method="json_schema", include_raw=True
     )
-    result = runnable.invoke(tasks.STRUCTURED_PROMPT)
+    result = cast(dict[str, Any], runnable.invoke(tasks.STRUCTURED_PROMPT))
     raw = result.get("raw")
     error = result.get("parsing_error")
     parsed = result.get("parsed")
@@ -121,7 +121,8 @@ def sdk_call(client: Any, model: str, capability: str, case: Any = None) -> Obse
         config["tools"] = _declarations(tasks.WEATHER_TOOL, tasks.ADD_TOOL)
         config["tool_config"] = types.ToolConfig(
             function_calling_config=types.FunctionCallingConfig(
-                mode="ANY", allowed_function_names=["add_numbers"]
+                mode=types.FunctionCallingConfigMode.ANY,
+                allowed_function_names=["add_numbers"],
             )
         )
     elif capability == "parallel_tool_calls":

@@ -8,6 +8,7 @@ from langchain.agents.middleware import (
     ModelCallLimitMiddleware,
     SummarizationMiddleware,
     ToolCallLimitMiddleware,
+    ToolErrorMiddleware,
 )
 from langchain.agents.structured_output import ToolStrategy
 from langchain_core.language_models import BaseChatModel
@@ -42,8 +43,18 @@ def build_middleware(model: BaseChatModel, limits: Limits) -> list[Any]:
                 for name in APPROVAL_TOOLS
             }
         ),
+        ToolErrorMiddleware(on_error=_tool_error),
         EvidenceCheckMiddleware(),
     ]
+
+
+def _tool_error(exc: Exception, request: Any) -> str:
+    """Tell the model a tool failed without echoing internal details."""
+    name = request.tool_call["name"]
+    return (
+        f"{name} failed with {type(exc).__name__}. Check the arguments. "
+        "If it fails again, list this check under unverified."
+    )
 
 
 def build_agent(

@@ -24,7 +24,7 @@ def clean_image(data: bytes, mime_type: str) -> bytes:
     if len(data) > MAX_IMAGE_BYTES:
         raise MediaError("image is larger than 8 MB")
     try:
-        image = Image.open(io.BytesIO(data))
+        image: Image.Image = Image.open(io.BytesIO(data))
         image.load()
     except Exception as exc:
         raise MediaError("file is not a readable image") from exc
