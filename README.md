@@ -4,7 +4,7 @@ For developers who trust LangChain model profiles, Claimcheck removes the guessw
 
 A LangChain agent reads what the LangChain profile and [models.dev](https://github.com/anomalyco/models.dev) claim about a model, runs probes with known answers three times each, and reports every claim as sealed (confirmed), rejected (contradicted), on hold (inconclusive), unclaimed, or not tested. Each verdict links to the transcripts behind it. When models.dev is wrong, it drafts a correction for a person to review. It never submits anything.
 
-- Live app: not deployed yet. See [Deploy](#deploy).
+- Live app: see [Deploy](#deploy).
 - Part of a small agent reliability series with Pause and Shakedown.
 
 ## Why
@@ -111,9 +111,9 @@ Then open http://localhost:3000. Tests: `uv run pytest`. Evals: `uv run python e
 
 ## Deploy
 
-- API: `sh scripts/prepare_space.sh` builds `dist/space`. Push it to a new Hugging Face Docker Space and add `GOOGLE_API_KEY`, `TAVILY_API_KEY` and `CORS_ORIGIN` (the Vercel URL) as Space secrets. Saved findings live in `/tmp` and reset when the Space restarts.
-- Web: import the repo on Vercel with root directory `web` and set `NEXT_PUBLIC_API_URL` to the Space URL.
-- When the API is asleep or out of quota, the web app still plays the recorded run in `web/public/demo`.
+- API: on [Render](https://render.com), choose New, then Blueprint, and pick this repository. `render.yaml` sets up a free Docker web service. Fill in `GOOGLE_API_KEY`, `TAVILY_API_KEY` and `PROXY_SECRET` (any long random string). The free service sleeps after 15 minutes idle, and saved findings reset when it restarts.
+- Web: deploy `web/` on Vercel and set `API_UPSTREAM` to the Render URL and `PROXY_SECRET` to the same string. The browser only talks to the Vercel site. Its `/api` route forwards calls to the API and passes the visitor's address for rate limiting.
+- When the API is asleep or out of quota, the web app plays the recorded run in `web/public/demo`.
 
 ## Known limitations
 
