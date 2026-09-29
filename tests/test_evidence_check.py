@@ -125,3 +125,17 @@ def test_clean_report_is_unchanged() -> None:
     report = _report()
     fixed, problems = check_report(report, _row(True, True), RECORDS.get)
     assert problems == [] and fixed == report
+
+
+def test_missing_langchain_value_is_a_data_layer_problem() -> None:
+    rows = [
+        {
+            "field": "audio_inputs",
+            "langchain": None,
+            "models_dev": True,
+            "missing_in_langchain": True,
+        }
+    ]
+    fixed, _ = check_report(_report(claimed_langchain=None), rows, RECORDS.get)
+    assert fixed.claims[0].layer == "data"
+    assert "stale" in fixed.claims[0].note

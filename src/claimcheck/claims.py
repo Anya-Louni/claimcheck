@@ -6,6 +6,7 @@ langchain-profiles generator: tool_call -> tool_calling, modalities.input ->
 max_output_tokens.
 """
 
+import difflib
 import json
 import os
 import time
@@ -21,6 +22,16 @@ from claimcheck.config import settings
 MODELS_DEV_URL = "https://models.dev/api.json"
 CACHE_PATH = settings.data_dir / "models_dev_api.json"
 CACHE_SECONDS = 6 * 3600
+
+PROBE_PLAN = [
+    "probe_tool_calling",
+    "probe_tool_choice",
+    "probe_parallel_tool_calls",
+    "probe_structured_output",
+    "probe_image_input",
+    "probe_audio_input",
+    "check_provider_limits",
+]
 
 CLAIM_FIELDS = (
     "tool_calling",
@@ -143,8 +154,17 @@ def get_claims_data(provider_name: str, model: str) -> dict[str, Any]:
     """Collect claims for one model from both sources."""
     provider = resolve_provider(provider_name)
     catalog = fetch_models_dev()
-    record = catalog.get(provider.models_dev_id, {}).get("models", {}).get(model)
+    known = catalog.get(provider.models_dev_id, {}).get("models", {})
+    record = known.get(model)
     profile = langchain_profile(provider, model)
+    if record is None and not profile:
+        return {
+            "provider": provider.langchain_id,
+            "model": model,
+            "known": False,
+            "did_you_mean": difflib.get_close_matches(model, list(known), n=3, cutoff=0.5),
+            "next_step": "Do not probe. Ask the user to confirm the exact model id.",
+        }
     return {
         "provider": provider.langchain_id,
         "model": model,
@@ -155,4 +175,5 @@ def get_claims_data(provider_name: str, model: str) -> dict[str, Any]:
             {k: profile.get(k) for k in CLAIM_FIELDS}, models_dev_claims(record)
         ),
         "models_dev_url": f"https://models.dev/api.json#{provider.models_dev_id}/{model}",
+        "probe_plan": PROBE_PLAN,
     }

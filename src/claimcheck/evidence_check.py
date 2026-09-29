@@ -89,6 +89,14 @@ def _check_claim(
         verdict = "confirmed" if observed == claimed else "contradicted"
     elif verdict in STRONG:
         verdict = "inconclusive"
+    if row is not None and row.get("missing_in_langchain") and claim.layer != "data":
+        claim = claim.model_copy(
+            update={
+                "layer": "data",
+                "note": claim.note + " The LangChain profile has no value here, "
+                "while models.dev does, so the package data is stale.",
+            }
+        )
     if verdict != claim.verdict:
         problems.append(f"{claim.field}: verdict '{claim.verdict}' recomputed as '{verdict}'")
         update: dict[str, Any] = {"verdict": verdict}
