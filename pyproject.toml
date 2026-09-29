@@ -4,17 +4,55 @@ version = "0.1.0"
 description = "Checks whether a model can really do what its LangChain profile says."
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.141.1",
+    "httpx>=0.28.1",
     "langchain>=1.4.3",
     "langchain-core>=1.6.5",
     "langchain-google-genai>=4.4.0",
     "langchain-tavily>=0.2.18",
     "langgraph>=1.2.12",
     "langgraph-checkpoint-sqlite>=3.1.1",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.5",
     "python-dotenv>=1.2.3",
+    "python-multipart>=0.0.32",
+    "tomlkit>=0.15.1",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.3.0",
     "langchain-tests>=1.1.9",
+    "mypy>=2.3.1",
+    "nbconvert>=7.17.1",
+    "nbformat>=5.11.1",
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pyttsx3>=2.99",
+    "ruff>=0.16.9",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claimcheck"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["live: calls real APIs (deselect with -m 'not live')"]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
