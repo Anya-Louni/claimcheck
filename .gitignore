@@ -12,3 +12,4 @@ node_modules/
 *.sqlite
 *.db
 data/
+dist/

@@ -1,0 +1,11 @@
+.venv
+.env
+.env.*
+data
+web
+evals
+notebooks
+tests
+.git
+.github
+.local-notes
