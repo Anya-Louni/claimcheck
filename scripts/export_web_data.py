@@ -29,7 +29,8 @@ def export_demo(path: Path) -> None:
     shutil.copy(path, PUBLIC / "demo" / path.name)
     ids = set(IDS.findall(text))
     out = PUBLIC / "demo" / "evidence"
-    out.mkdir(exist_ok=True)
+    shutil.rmtree(out, ignore_errors=True)  # evidence from older recordings must not linger
+    out.mkdir()
     for evidence_id in sorted(ids):
         source = EVIDENCE / f"{evidence_id}.json"
         record = json.loads(source.read_text())
