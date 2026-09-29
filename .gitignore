@@ -11,5 +11,5 @@ node_modules/
 .next/
 *.sqlite
 *.db
-data/
+/data/
 dist/

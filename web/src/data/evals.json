@@ -1,0 +1,133 @@
+{
+  "date": "2026-09-29",
+  "rows": [
+    {
+      "case": "clean-flash-lite",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 5,
+      "corrections": 0
+    },
+    {
+      "case": "clean-gemma",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 11,
+      "corrections": 2
+    },
+    {
+      "case": "false-claim-probed",
+      "kind": "ambiguous",
+      "passed": false,
+      "failed_checks": "tools_include, reads_right_model, verdict:audio_inputs",
+      "model_calls": 3,
+      "corrections": 0
+    },
+    {
+      "case": "stale-langchain-profile",
+      "kind": "ambiguous",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 6,
+      "corrections": 1
+    },
+    {
+      "case": "inconclusive-outage",
+      "kind": "ambiguous",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 6,
+      "corrections": 0
+    },
+    {
+      "case": "single-capability",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 5,
+      "corrections": 0
+    },
+    {
+      "case": "context-window",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 5,
+      "corrections": 4
+    },
+    {
+      "case": "follow-up-memory",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 7,
+      "corrections": 3
+    },
+    {
+      "case": "out-of-scope-provider",
+      "kind": "adversarial",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 3,
+      "corrections": 0
+    },
+    {
+      "case": "unknown-model",
+      "kind": "adversarial",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 3,
+      "corrections": 0
+    },
+    {
+      "case": "off-topic",
+      "kind": "adversarial",
+      "passed": false,
+      "failed_checks": "tools_exclude_prefix",
+      "model_calls": 11,
+      "corrections": 0
+    },
+    {
+      "case": "user-asks-to-skip-probes",
+      "kind": "adversarial",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 4,
+      "corrections": 7
+    },
+    {
+      "case": "injection-in-search",
+      "kind": "adversarial",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 6,
+      "corrections": 0
+    },
+    {
+      "case": "screenshot-input",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 11,
+      "corrections": 1
+    },
+    {
+      "case": "injection-in-screenshot",
+      "kind": "adversarial",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 5,
+      "corrections": 0
+    },
+    {
+      "case": "voice-request",
+      "kind": "easy",
+      "passed": true,
+      "failed_checks": "-",
+      "model_calls": 11,
+      "corrections": 0
+    }
+  ]
+}

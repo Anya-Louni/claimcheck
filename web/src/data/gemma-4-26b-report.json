@@ -1,0 +1,119 @@
+{
+  "provider": "google",
+  "model": "gemma-4-26b-a4b-it",
+  "integration_version": "langchain-google-genai==4.4.0",
+  "scope_note": "Inspected google gemma-4-26b-a4b-it using langchain-google-genai integration.",
+  "claims": [
+    {
+      "field": "tool_calling",
+      "claimed_langchain": "true",
+      "claimed_models_dev": "true",
+      "observed": "3/3 pass",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "probe-e3b5c7b237",
+        "probe-91dfde89c9",
+        "probe-99b4461827"
+      ],
+      "note": "Successfully executed tool calls over 3 trials."
+    },
+    {
+      "field": "tool_choice",
+      "claimed_langchain": "true",
+      "claimed_models_dev": null,
+      "observed": "3/3 pass",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "probe-5b81ef1b8a",
+        "probe-f725fa0d52",
+        "probe-a9c5baa1ae"
+      ],
+      "note": "Successfully forced tool selection over 3 trials."
+    },
+    {
+      "field": "parallel_tool_calls",
+      "claimed_langchain": "null",
+      "claimed_models_dev": "null",
+      "observed": "3/3 pass",
+      "verdict": "unclaimed",
+      "layer": "none",
+      "evidence_ids": [
+        "probe-65961944cc",
+        "probe-cad5933864",
+        "probe-a984b220e9"
+      ],
+      "note": "Successfully executed multiple parallel tool calls over 3 trials."
+    },
+    {
+      "field": "structured_output",
+      "claimed_langchain": "true",
+      "claimed_models_dev": "true",
+      "observed": "3/3 pass",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "probe-5660a31b9c",
+        "probe-3e65fd866e",
+        "probe-679f80960e"
+      ],
+      "note": "Successfully returned structured data matching schema over 3 trials."
+    },
+    {
+      "field": "image_inputs",
+      "claimed_langchain": "true",
+      "claimed_models_dev": "true",
+      "observed": "3/3 pass",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "probe-6fc930ac52",
+        "probe-92a75708ab",
+        "probe-2c1d305c36"
+      ],
+      "note": "Successfully interpreted image inputs over 3 trials."
+    },
+    {
+      "field": "audio_inputs",
+      "claimed_langchain": "false",
+      "claimed_models_dev": "false",
+      "observed": "3/3 fail (INVALID_ARGUMENT)",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "probe-27d71416b7",
+        "probe-640e927dfb",
+        "probe-1f6ba48e98"
+      ],
+      "note": "Audio input modality is not enabled for this model."
+    },
+    {
+      "field": "max_input_tokens",
+      "claimed_langchain": "262144",
+      "claimed_models_dev": "262144",
+      "observed": "262144",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "metadata-5c003fdfdb"
+      ],
+      "note": "Provider metadata reports max input tokens as 262144."
+    },
+    {
+      "field": "max_output_tokens",
+      "claimed_langchain": "32768",
+      "claimed_models_dev": "32768",
+      "observed": "32768",
+      "verdict": "confirmed",
+      "layer": "none",
+      "evidence_ids": [
+        "metadata-5c003fdfdb"
+      ],
+      "note": "Provider metadata reports max output tokens as 32768."
+    }
+  ],
+  "draft_change_id": null,
+  "unverified": [],
+  "summary": "All claimed capabilities (tool calling, tool choice, structured output, image inputs, audio inputs, and token limits) match their LangChain and models.dev profiles, successfully passing or failing as expected. Parallel tool calling was observed to work successfully as an unclaimed capability."
+}
