@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Inspection station, daylight. Seal yellow is the station ground; forms are paper. */
+:root {
+  --seal: #f4c21b;
+  --seal-deep: #d9a400;
+  --on-seal: #151515;
+  --ink: #151515;
+  --ink-soft: #3d3a33;
+  --paper: #f7f5ef;
+  --paper-2: #eeeadf;
+  --ground: #f4c21b;
+  --carbon: #26398a;
+  --reject: #c01c12;
+  --on-reject: #ffffff;
+  --rule: #d3cdbf;
+  --steel: #8e959c;
+  --shadow: 21 21 21;
+  color-scheme: light;
+}
+
+/* Night inspection: lead-seal black ground, paper forms dimmed, the seal stays yellow. */
+[data-theme="dark"] {
+  --seal: #f4c21b;
+  --seal-deep: #ffd54a;
+  --on-seal: #151515;
+  --ink: #ede9df;
+  --ink-soft: #c9c4b7;
+  --paper: #1b1a17;
+  --paper-2: #24221e;
+  --ground: #111110;
+  --carbon: #a9b8f5;
+  --reject: #ff6152;
+  --on-reject: #151515;
+  --rule: #3a372f;
+  --steel: #6d737a;
+  --shadow: 0 0 0;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-seal: var(--seal);
+  --color-seal-deep: var(--seal-deep);
+  --color-on-seal: var(--on-seal);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ground: var(--ground);
+  --color-carbon: var(--carbon);
+  --color-reject: var(--reject);
+  --color-on-reject: var(--on-reject);
+  --color-rule: var(--rule);
+  --color-steel: var(--steel);
+  --font-display: var(--font-stencil);
+  --font-label: var(--font-shoulders);
+  --font-sans: var(--font-public);
+  --font-mono: var(--font-overpass-mono);
+  --ease-stamp: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  background: var(--ground);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-public), system-ui, sans-serif;
+  font-feature-settings: "tnum" 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Browser surfaces carry the station's materials too. */
+::selection {
+  background: var(--ink);
+  color: var(--seal);
+}
+
+:focus-visible {
+  outline: 3px solid var(--carbon);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+a {
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+
+input,
+textarea {
+  caret-color: var(--carbon);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--steel) transparent;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ruled form paper: faint carbon rules every line. */
+.form-paper {
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(2.5rem - 1px),
+    color-mix(in oklab, var(--carbon) 10%, transparent) calc(2.5rem - 1px),
+    color-mix(in oklab, var(--carbon) 10%, transparent) 2.5rem
+  );
+}
+
+.paper-shadow {
+  box-shadow:
+    0 1px 1px rgb(var(--shadow) / 0.08),
+    0 12px 28px -12px rgb(var(--shadow) / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes drawer {
+  from {
+    transform: translateX(2rem);
+    opacity: 0.4;
+  }
+}
+
+@layer components {
+/* Report rows: claim and mark side by side on phones, one ruled line per claim from tablets up. */
+.sheet-row {
+  display: grid;
+  gap: 0.25rem 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "claim mark" "lc mark" "md mark" "gauge gauge" "note note";
+}
+@media (min-width: 48rem) {
+  .sheet-row {
+    align-items: center;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1fr) 4.5rem;
+    grid-template-areas: "claim lc md gauge mark" "note note note note note";
+  }
+  .sheet-compact .sheet-row {
+    grid-template-columns: minmax(0, 1.6fr) 4.5rem 5.5rem 4.5rem 3.75rem;
+  }
+}
+}
+
+/* Sections below the first viewport skip layout and paint until they are near. */
+.below-fold {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1000px;
+}

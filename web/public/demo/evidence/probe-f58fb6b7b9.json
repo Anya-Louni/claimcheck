@@ -1,0 +1,27 @@
+{
+  "id": "probe-f58fb6b7b9",
+  "kind": "probe",
+  "created_at": "2026-09-29T15:19:06+00:00",
+  "capability": "tool_calling",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "trial": 1,
+  "request": {
+    "prompt": "What is the weather in Paris right now? Use the get_weather tool."
+  },
+  "response": {
+    "text": "",
+    "tool_calls": [
+      {
+        "name": "get_weather",
+        "args": {
+          "city": "Paris"
+        }
+      }
+    ],
+    "parsed": null,
+    "error": null
+  },
+  "passed": true,
+  "ms": 6889
+}

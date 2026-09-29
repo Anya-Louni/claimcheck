@@ -1,0 +1,12 @@
+{
+  "id": "metadata-e02235c719",
+  "kind": "metadata",
+  "created_at": "2026-09-29T15:22:23+00:00",
+  "model": "gemma-4-26b-a4b-it",
+  "endpoint": "GET models/gemma-4-26b-a4b-it",
+  "response": {
+    "max_input_tokens": 262144,
+    "max_output_tokens": 32768,
+    "name": "models/gemma-4-26b-a4b-it"
+  }
+}

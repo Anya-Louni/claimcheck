@@ -1,0 +1,20 @@
+{
+  "id": "probe-6a7ef5d032",
+  "kind": "probe",
+  "created_at": "2026-09-29T15:20:18+00:00",
+  "capability": "tool_choice",
+  "model": "gemma-4-26b-a4b-it",
+  "path": "langchain",
+  "trial": 2,
+  "request": {
+    "prompt": "Tell me one short fact about owls."
+  },
+  "response": {
+    "text": "",
+    "tool_calls": [],
+    "parsed": null,
+    "error": "GoogleAPIError: 500 INTERNAL. {'error': {'code': 500, 'message': 'Internal error encountered.', 'status': 'INTERNAL'}}"
+  },
+  "passed": null,
+  "ms": 30217
+}
