@@ -3,17 +3,21 @@
 import sqlite3
 from functools import cache
 
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.store.sqlite import SqliteStore
 
 from claimcheck.config import settings
+
+# Only our own report types may be rebuilt from a checkpoint.
+SAFE_TYPES = [("claimcheck.schemas", "ProfileReport"), ("claimcheck.schemas", "ClaimVerdict")]
 
 
 @cache
 def checkpointer() -> SqliteSaver:
     """Conversation state per thread_id, so follow-up questions work."""
     conn = sqlite3.connect(settings.data_dir / "checkpoints.sqlite", check_same_thread=False)
-    return SqliteSaver(conn)
+    return SqliteSaver(conn, serde=JsonPlusSerializer(allowed_msgpack_modules=SAFE_TYPES))
 
 
 @cache

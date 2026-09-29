@@ -44,6 +44,11 @@ def report_args(evidence_ids: list[str], verdict: str = "confirmed") -> dict[str
     }
 
 
+def _passing_probe() -> str:
+    record = {"model": "m", "capability": "tool_calling", "path": "langchain", "passed": True}
+    return evidence.save("probe", record)
+
+
 @pytest.fixture(autouse=True)
 def fixed_claims(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(claims, "get_claims_data", lambda provider, model: CLAIMS)
@@ -73,7 +78,7 @@ def _ask(text: str) -> dict[str, Any]:
 
 
 def test_agent_calls_tool_and_returns_report() -> None:
-    probe_id = evidence.save("probe", {"model": "m", "capability": "tool_calling"})
+    probe_id = _passing_probe()
     agent = _agent(
         tool_call("get_claims", {"provider": "google", "model": "m"}),
         tool_call("ProfileReport", report_args([probe_id]), "call_2"),
@@ -91,7 +96,7 @@ def test_evidence_check_downgrades_invented_ids() -> None:
     report = agent.invoke(_ask("check m"), _config("b"))["structured_response"]
     assert report.claims[0].verdict == "inconclusive"
     assert report.claims[0].evidence_ids == []
-    assert any("no valid evidence" in item for item in report.unverified)
+    assert any("recomputed as 'inconclusive'" in item for item in report.unverified)
 
 
 def test_evidence_for_another_model_does_not_count() -> None:
@@ -152,7 +157,7 @@ def test_model_call_limit_stops_cleanly() -> None:
 
 
 def test_stream_events_are_typed() -> None:
-    probe_id = evidence.save("probe", {"model": "m"})
+    probe_id = _passing_probe()
     agent = _agent(
         tool_call("get_claims", {"provider": "google", "model": "m"}),
         tool_call("ProfileReport", report_args([probe_id]), "call_2"),

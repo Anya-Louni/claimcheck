@@ -1,11 +1,14 @@
 """After the agent answers, check the report against real data, in code.
 
-The model cannot be trusted to cite or copy correctly, so:
-- claimed values are overwritten with what get_claims actually returned,
-- a confirmed or contradicted verdict with no claim behind it becomes unclaimed,
-- a confirmed or contradicted verdict whose evidence ids do not exist, or whose
-  evidence is about another model, is downgraded to inconclusive.
-Every correction is listed in unverified so the reader sees it.
+The model writes the report, but it cannot be trusted to copy values or apply
+the verdict rules exactly. So this middleware:
+- overwrites claimed values with what get_claims actually returned,
+- drops evidence ids that do not exist or belong to another model,
+- recomputes the verdict from the cited evidence whenever evidence exists
+  (probe trials vote; metadata values are compared directly),
+- downgrades a confirmed or contradicted verdict with no usable evidence to
+  inconclusive, and one with no claim behind it to unclaimed.
+Every change is listed in unverified so the reader can see it.
 """
 
 import json
@@ -15,7 +18,8 @@ from langchain.agents.middleware import AgentMiddleware, AgentState
 from langgraph.runtime import Runtime
 
 from claimcheck import claims, evidence
-from claimcheck.schemas import ProfileReport
+from claimcheck.probes.base import majority
+from claimcheck.schemas import ClaimVerdict, ProfileReport
 
 STRONG = {"confirmed", "contradicted"}
 
@@ -24,8 +28,74 @@ def _text(value: Any) -> str | None:
     return None if value is None else json.dumps(value)
 
 
-def _unclaimed(claim: Any) -> bool:
-    return claim.claimed_langchain in (None, "null") and claim.claimed_models_dev in (None, "null")
+def _parse(text: str | None) -> Any:
+    if text is None or text.strip().lower() in ("", "null", "none"):
+        return None
+    try:
+        return json.loads(text.strip().lower())
+    except json.JSONDecodeError:
+        return text
+
+
+def _claimed(claim: ClaimVerdict) -> Any:
+    """The value LangChain acts on, or the models.dev value when LangChain has none."""
+    lc = _parse(claim.claimed_langchain)
+    return lc if lc is not None else _parse(claim.claimed_models_dev)
+
+
+def observed_value(field: str, records: list[dict[str, Any]]) -> Any:
+    """Derive what the evidence shows: True/False from probe votes, a number from metadata.
+
+    Returns None when the evidence does not settle it. Langchain-path trials are
+    preferred, since the claim is about what LangChain users get.
+    """
+    meta = [r for r in records if r.get("kind") == "metadata"]
+    if meta and field in meta[0].get("response", {}):
+        return meta[0]["response"][field]
+    probes = [r for r in records if r.get("kind") == "probe" and r.get("capability") == field]
+    chosen = [r for r in probes if r.get("path") == "langchain"] or probes
+    if not chosen:
+        return None
+    votes = [r.get("passed") for r in chosen]
+    outcome = majority(votes.count(True), votes.count(False), votes.count(None))
+    return {"pass": True, "fail": False}.get(outcome)
+
+
+def _check_claim(
+    claim: ClaimVerdict, row: dict[str, Any] | None, records: dict[str, Any], model: str
+) -> tuple[ClaimVerdict, list[str]]:
+    problems: list[str] = []
+    if row is not None:
+        actual = (_text(row["langchain"]), _text(row["models_dev"]))
+        written = (_parse(claim.claimed_langchain), _parse(claim.claimed_models_dev))
+        if written != (row["langchain"], row["models_dev"]):
+            problems.append(f"{claim.field}: claimed values corrected from get_claims data")
+        claim = claim.model_copy(
+            update={"claimed_langchain": actual[0], "claimed_models_dev": actual[1]}
+        )
+    valid = {
+        eid: records[eid]
+        for eid in claim.evidence_ids
+        if records.get(eid) and records[eid].get("model", model) == model
+    }
+    claim = claim.model_copy(update={"evidence_ids": list(valid)})
+    claimed = _claimed(claim)
+    observed = observed_value(claim.field, list(valid.values()))
+    verdict = claim.verdict
+    if claimed is None:
+        if verdict in STRONG:
+            verdict = "unclaimed"
+    elif observed is not None:
+        verdict = "confirmed" if observed == claimed else "contradicted"
+    elif verdict in STRONG:
+        verdict = "inconclusive"
+    if verdict != claim.verdict:
+        problems.append(f"{claim.field}: verdict '{claim.verdict}' recomputed as '{verdict}'")
+        update: dict[str, Any] = {"verdict": verdict}
+        if verdict == "confirmed":
+            update["layer"] = "none"
+        claim = claim.model_copy(update=update)
+    return claim, problems
 
 
 def check_report(
@@ -35,41 +105,18 @@ def check_report(
 ) -> tuple[ProfileReport, list[str]]:
     """Return a corrected copy of the report and the problems found. Pure given its inputs."""
     rows = {row["field"]: row for row in claim_rows or []}
+    ids = {eid for c in report.claims for eid in c.evidence_ids}
+    records = {eid: lookup(eid) for eid in ids}
     problems: list[str] = []
     fixed_claims = []
     for claim in report.claims:
-        row = rows.get(claim.field)
-        if row is not None:
-            actual = (_text(row["langchain"]), _text(row["models_dev"]))
-            if (claim.claimed_langchain, claim.claimed_models_dev) != actual:
-                problems.append(f"{claim.field}: claimed values corrected from get_claims data")
-            claim = claim.model_copy(
-                update={"claimed_langchain": actual[0], "claimed_models_dev": actual[1]}
-            )
-        if claim.verdict in STRONG and _unclaimed(claim):
-            problems.append(f"{claim.field}: no source claims a value, verdict set to unclaimed")
-            claim = claim.model_copy(update={"verdict": "unclaimed"})
-        records = [lookup(eid) for eid in claim.evidence_ids]
-        valid_ids = [
-            eid
-            for eid, r in zip(claim.evidence_ids, records, strict=True)
-            if r and r.get("model", report.model) == report.model
-        ]
-        if claim.verdict in STRONG and not valid_ids:
-            problems.append(
-                f"{claim.field}: '{claim.verdict}' had no valid evidence ids, set to inconclusive"
-            )
-            claim = claim.model_copy(
-                update={
-                    "verdict": "inconclusive",
-                    "note": claim.note + " (Downgraded: cited evidence could not be found.)",
-                }
-            )
-        fixed_claims.append(claim.model_copy(update={"evidence_ids": valid_ids}))
-    fixed = report.model_copy(
+        fixed, found = _check_claim(claim, rows.get(claim.field), records, report.model)
+        fixed_claims.append(fixed)
+        problems.extend(found)
+    fixed_report = report.model_copy(
         update={"claims": fixed_claims, "unverified": report.unverified + problems}
     )
-    return fixed, problems
+    return fixed_report, problems
 
 
 class EvidenceCheckMiddleware(AgentMiddleware):
