@@ -61,12 +61,10 @@ export function EvidenceDrawer({ id, recorded, onClose }: { id: string | null; r
     >
       <div className="flex h-full flex-col">
         <header className="flex items-center justify-between gap-3 border-b-2 border-ink px-5 py-4">
-          <div>
-            <p className="font-label text-xs font-extrabold uppercase tracking-widest text-carbon">Evidence</p>
-            <h2 id="evidence-title" className="font-mono text-lg font-semibold">
-              {id}
-            </h2>
-          </div>
+          <h2 id="evidence-title" className="font-mono text-lg font-semibold">
+            <span className="sr-only">Evidence </span>
+            {id}
+          </h2>
           <button type="button" onClick={onClose} aria-label="Close evidence" className="grid size-10 place-items-center border-2 border-ink hover:bg-ink hover:text-paper">
             <X size={18} />
           </button>

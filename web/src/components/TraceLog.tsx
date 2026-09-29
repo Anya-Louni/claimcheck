@@ -1,19 +1,19 @@
 "use client";
 
-import { ArrowUpRight, BadgeCheck, CircleStop, CornerDownLeft, Hand, Layers, Sparkles, Tag } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, CircleStop, CornerDownLeft, Hand, Layers, MessageSquareText, Tag } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { LogEntry } from "@/lib/inspection";
 
 const ICON: Record<string, React.ReactNode> = {
   tool_call: <ArrowUpRight size={15} />,
   tool_result: <CornerDownLeft size={15} />,
-  model: <Sparkles size={15} />,
+  model: <MessageSquareText size={15} />,
   middleware: <Layers size={15} />,
   approval: <Hand size={15} />,
   evidence_check: <BadgeCheck size={15} />,
   limit: <CircleStop size={15} />,
   report: <Tag size={15} />,
-  answer: <Sparkles size={15} />,
+  answer: <MessageSquareText size={15} />,
   recorded: <Tag size={15} />,
 };
 

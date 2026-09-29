@@ -5,7 +5,6 @@
 /* Inspection station, daylight. Seal yellow is the station ground; forms are paper. */
 :root {
   --seal: #f4c21b;
-  --seal-deep: #d9a400;
   --on-seal: #151515;
   --ink: #151515;
   --ink-soft: #3d3a33;
@@ -24,7 +23,6 @@
 /* Night inspection: lead-seal black ground, paper forms dimmed, the seal stays yellow. */
 [data-theme="dark"] {
   --seal: #f4c21b;
-  --seal-deep: #ffd54a;
   --on-seal: #151515;
   --ink: #ede9df;
   --ink-soft: #c9c4b7;
@@ -42,7 +40,6 @@
 
 @theme inline {
   --color-seal: var(--seal);
-  --color-seal-deep: var(--seal-deep);
   --color-on-seal: var(--on-seal);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
