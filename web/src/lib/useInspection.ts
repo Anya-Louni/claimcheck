@@ -7,7 +7,7 @@ import { initialState, reduce, settle, type InspectionState } from "./inspection
 import type { Decision, StreamEvent } from "./types";
 
 type Mode = "recorded" | "live";
-export type ApiStatus = "checking" | "awake" | "asleep";
+export type ApiStatus = "checking" | "awake" | "waking" | "asleep";
 
 function newThread(): string {
   return `t-${Math.random().toString(36).slice(2, 10)}`;
@@ -42,10 +42,24 @@ export function useInspection(initialMode: Mode) {
   speedRef.current = speed;
 
   useEffect(() => {
-    checkApi().then((result) => {
-      setLimits(result);
-      setApi(result ? "awake" : "asleep");
+    // The first call also wakes a sleeping service, so a miss gets one patient retry.
+    let cancelled = false;
+    checkApi().then(async (quick) => {
+      if (cancelled) return;
+      if (quick) {
+        setLimits(quick);
+        setApi("awake");
+        return;
+      }
+      setApi("waking");
+      const patient = await checkApi(90_000);
+      if (cancelled) return;
+      setLimits(patient);
+      setApi(patient ? "awake" : "asleep");
     });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const onEvent = useCallback((event: StreamEvent) => dispatch({ type: "event", event }), []);

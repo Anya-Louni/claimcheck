@@ -29,12 +29,17 @@ const STATUS_TEXT: Record<InspectionState["status"], string> = {
 };
 
 function ApiBadge({ api }: { api: ApiStatus }) {
-  const text = api === "checking" ? "Checking service" : api === "awake" ? "Live service awake" : "Live service asleep";
+  const text = {
+    checking: "Checking service",
+    awake: "Live service awake",
+    waking: "Live service waking up",
+    asleep: "Live service asleep",
+  }[api];
   return (
     <span className="inline-flex items-center gap-2 text-sm">
       <span
         aria-hidden
-        className={`size-2.5 ${api === "awake" ? "bg-current" : "border border-dashed border-current"} ${api === "checking" ? "animate-pulse" : ""}`}
+        className={`size-2.5 ${api === "awake" ? "bg-current" : "border border-dashed border-current"} ${api === "checking" || api === "waking" ? "animate-pulse" : ""}`}
       />
       {text}
     </span>
@@ -80,7 +85,7 @@ export function Workspace({ startLive }: { startLive: boolean }) {
   const recorded = mode === "recorded";
   const busy = state.status === "running" && !recorded;
 
-  const asleepNotice = startLive && api === "asleep";
+  const down = api === "waking" || api === "asleep";
 
   useEffect(() => {
     if (!startLive) bench.playDemo();
@@ -90,7 +95,7 @@ export function Workspace({ startLive }: { startLive: boolean }) {
 
   // A live visit with the service asleep falls back to the recorded run.
   useEffect(() => {
-    if (api === "asleep" && mode === "live" && state.status === "idle") bench.playDemo();
+    if (down && startLive && mode === "live" && state.status === "idle") bench.playDemo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [api]);
 
@@ -101,9 +106,11 @@ export function Workspace({ startLive }: { startLive: boolean }) {
 
   const report = (
     <div className="space-y-5">
-      {asleepNotice && recorded && (
+      {down && recorded && (
         <p role="status" className="border-2 border-dashed border-current px-4 py-3 text-sm">
-          The live service is asleep or out of quota, so this is the recorded example. Live runs come back when it wakes.
+          {api === "waking"
+            ? "The live service is waking up, which takes about a minute. This is the recorded example meanwhile."
+            : "The live service did not answer, so this is the recorded example. Reload the page to try again."}
         </p>
       )}
       {state.interrupt && (
@@ -191,8 +198,10 @@ export function Workspace({ startLive }: { startLive: boolean }) {
                   {text}
                 </button>
               ))}
-              {api === "asleep" && (
-                <p className="mt-2 text-sm text-ink-soft">The live service is asleep right now, so these are disabled.</p>
+              {down && (
+                <p className="mt-2 text-sm text-ink-soft">
+                  {api === "waking" ? "The live service is waking up. These unlock in about a minute." : "The live service did not answer, so these are disabled."}
+                </p>
               )}
             </div>
             <button
@@ -350,7 +359,7 @@ export function Workspace({ startLive }: { startLive: boolean }) {
                   ? state.model
                     ? `Ask a follow-up about ${state.model}`
                     : "Which model should I inspect? For example: google gemini-3.5-flash-lite"
-                  : "The live service is asleep. Watch the recorded example meanwhile."
+                  : api === "waking" ? "The live service is waking up. About a minute." : api === "checking" ? "Checking the live service" : "The live service did not answer. Reload to try again."
               }
             />
           </div>
