@@ -12,6 +12,7 @@ from langgraph.store.base import BaseStore
 from pydantic import BaseModel
 
 from claimcheck import claims, drafts, evidence, probes
+from claimcheck.persistence import findings_namespace
 from claimcheck.schemas import Verdict
 from claimcheck.untrusted import wrap
 
@@ -175,7 +176,7 @@ def list_findings(provider: str, model: str, runtime: ToolRuntime) -> str:
 
     Call this near the start to show what changed since last time.
     """
-    items = _store(runtime).search(("findings", provider, model), limit=10)
+    items = _store(runtime).search(findings_namespace(provider, model), limit=10)
     items = sorted(items, key=lambda i: i.key, reverse=True)
     return _json([{"saved_at": i.key, **i.value} for i in items])
 
@@ -203,7 +204,7 @@ def save_finding(
         "integration_version": integration_version,
         "verdicts": {v.field: v.verdict for v in verdicts},
     }
-    _store(runtime).put(("findings", provider, model), key, value)
+    _store(runtime).put(findings_namespace(provider, model), key, value)
     return _json({"saved": True, "saved_at": key})
 
 

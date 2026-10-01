@@ -22,6 +22,7 @@ from claimcheck import evidence, persistence
 from claimcheck.agent import build_agent
 from claimcheck.config import ROOT, settings
 from claimcheck.media import MediaError, audio_block, check_audio, clean_image, image_block
+from claimcheck.persistence import findings_namespace
 from claimcheck.probes import daily_cap
 from claimcheck.streaming import STREAM_MODES, to_events
 
@@ -182,7 +183,7 @@ def get_audio_fixture(name: str) -> FileResponse:
 
 @app.get("/findings/{provider}/{model}")
 def get_findings(provider: str, model: str) -> list[dict[str, Any]]:
-    items = persistence.store().search(("findings", provider, model), limit=20)
+    items = persistence.store().search(findings_namespace(provider, model), limit=20)
     return [{"saved_at": i.key, **i.value} for i in sorted(items, key=lambda i: i.key)]
 
 

@@ -4,7 +4,7 @@ For developers who trust LangChain model profiles, Claimcheck removes the guessw
 
 A LangChain agent reads what the LangChain profile and [models.dev](https://github.com/anomalyco/models.dev) claim about a model, runs probes with known answers three times each, and reports every claim as sealed (confirmed), rejected (contradicted), on hold (inconclusive), unclaimed, or not tested. Each verdict links to the transcripts behind it. When models.dev is wrong, it drafts a correction for a person to review. It never submits anything.
 
-- Live app: see [Deploy](#deploy).
+- Live app: https://claimcheck-inky.vercel.app. It opens on a recorded run. The live API sleeps when idle and takes about a minute to wake.
 - Part of a small agent reliability series with Pause and Shakedown.
 
 ## Why

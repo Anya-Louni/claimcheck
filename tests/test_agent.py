@@ -171,3 +171,20 @@ def test_stream_events_are_typed() -> None:
     results = [e for e in events if e["type"] == "result"]
     assert results[-1]["report"]["claims"][0]["verdict"] == "confirmed"
     assert all(e["type"] in {"trace", "token", "interrupt", "result", "error"} for e in events)
+
+
+def test_model_ids_with_dots_can_be_saved() -> None:
+    from claimcheck.persistence import findings_namespace
+
+    store = InMemoryStore()
+    args = {
+        "provider": "google_genai",
+        "model": "gemini-3.5-flash-lite",
+        "integration_version": "pkg==1",
+        "verdicts": [{"field": "tool_calling", "verdict": "confirmed"}],
+    }
+    agent = _agent(tool_call("save_finding", args), AIMessage("saved"), store=store)
+    agent.invoke(_ask("save"), _config("dots"))
+    agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), _config("dots"))
+    saved = store.search(findings_namespace("google_genai", "gemini-3.5-flash-lite"))
+    assert saved[0].value["verdicts"] == {"tool_calling": "confirmed"}

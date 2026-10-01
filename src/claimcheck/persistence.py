@@ -35,3 +35,8 @@ def store() -> SqliteStore:
 def in_memory() -> InMemorySaver:
     """In-memory checkpointer for notebooks and evals, with the same safe types."""
     return InMemorySaver(serde=JsonPlusSerializer(allowed_msgpack_modules=SAFE_TYPES))
+
+
+def findings_namespace(provider: str, model: str) -> tuple[str, str, str]:
+    """Store namespace for one model's findings. Namespace labels cannot contain periods."""
+    return ("findings", provider.replace(".", "_"), model.replace(".", "_"))
